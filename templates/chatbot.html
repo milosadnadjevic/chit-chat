@@ -5,14 +5,13 @@
     body, html {
       height: 100%;
     }
-
     .messages-box {
       flex: 1;
       overflow-y: auto;
     }
 
     .messages-list {
-      padding-left: 0;
+      padding-left: 20px;
     }
 
     .message {
@@ -26,13 +25,15 @@
     }
 
     .sent {
-      background-color: #dcf8c6;
+      background-color: #a8a2f1;
       align-self: flex-end;
+      color: white;
     }
 
     .received {
-      background-color: #f1f0f0;
+      background-color: #efa5e7;
       align-self: flex-start;
+      color: white;
     }
 
     .message-form {
@@ -75,7 +76,7 @@
         <li class="message received">
           <div class="message-text">
             <div class="message-sender">
-              <b>AI Chatbot</b>
+              <b>Milos AI</b>
             </div>
             <div class="message-content">
               Hi, I am your AI Chatbot, you can ask me anything.
@@ -100,5 +101,58 @@
   </form>
 </div>
 
+<script>
+  const messagesList = document.querySelector('.messages-list')
+  const messageForm = document.querySelector('.message-form')
+  const messageInput = document.querySelector('.message-input')
 
+  messageForm.addEventListener('submit', (event) => {
+    event.preventDefault()
+
+    const message = messageInput.value.trim()
+    if (message.length === 0) {
+      return
+    }
+    
+    const messageItem = document.createElement('li')
+    messageItem.classList.add('message', 'sent')
+    messageItem.innerHTML = `
+      <div class="message-text">
+        <div class="message-content">
+          ${message}
+        </div>
+      </div>
+    `
+    messagesList.appendChild(messageItem)
+
+    messageInput.value = ''
+
+    fetch('', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: new URLSearchParams ({
+          'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          'message': message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+      const response = data.response
+      const messageItem = document.createElement('li')
+      messageItem.classList.add('message', 'received')
+      messageItem.innerHTML = `
+        <div class='message-text'>
+          <div class='message-sender'>
+            <b>Milos AI</b>
+          </div>
+          <div class='message-content'>
+            ${response}
+          </div>
+        </div>
+      `
+      messagesList.appendChild(messageItem)
+    })
+  })
+
+</script>
 {% endblock %}
